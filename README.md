@@ -1,6 +1,8 @@
-# Markdown Math Book
+# From Pythagoras to Riemann–Roch
 
-A starting point for writing a mathematics book in Markdown. [pandoc](https://pandoc.org) builds one source into four formats:
+*Algebraic Curves Through Problems*: a book on algebraic curves. It starts with Pythagorean triples and works up to the Riemann–Roch theorem, one problem per chapter.
+
+The book is written in Markdown. [pandoc](https://pandoc.org) builds it from that one source into four formats:
 
 | Target | Output | Notes |
 |--------|--------|-------|
@@ -11,33 +13,14 @@ A starting point for writing a mathematics book in Markdown. [pandoc](https://pa
 
 `make` builds all four, and `make clean` deletes `build/`.
 
-The repository contains two short sample chapters and an unnumbered introduction. Together they show every feature: chapter and section numbering, numbered theorems, lemmas, propositions, definitions, examples, problems and remarks, proofs, LaTeX macros, cross-references, footnotes and tables.
-
-## Start your own book
-
-1. Use this repository as a template, or fork or clone it.
-2. Set the title, subtitle, author and rights in `metadata.yaml`.
-3. Replace the files in `chapters/` with your own chapters.
-4. Run `make web` for a quick check, and `make` for all formats.
-
 ## Repository layout
 
 - `chapters/*.md`: one file per chapter. The filename prefix sets the chapter order.
-- `macros.md`: LaTeX macros (`\PP`, `\Aff`, `\CC`, `\ZZ`, `\Spec`, `\Pic`) that you can use in every chapter. Add your own here.
+- `macros.md`: LaTeX macros (`\PP`, `\CC`, `\Spec`, ...) that you can use in every chapter.
 - `metadata.yaml`: title, author, page size, fonts and theorem environments.
 - `filters/theorem-envs.lua`: turns blocks such as `::: theorem` into numbered theorems in every output format.
 - `style.css`: styles for the website and the EPUB.
-- `local.mk.example`: personal Makefile settings. Copy it to `local.mk` (ignored by git) to use `make backup`.
-- `.github/workflows/build.yml`: builds all formats on GitHub for every push to `main`.
 - `build/`: generated files. Do not edit them.
-
-## Writing
-
-Each `#` heading starts a chapter, and each `##` heading a section. Pandoc numbers them, so do not write numbers in headings. Add `{-}` to a heading for an unnumbered chapter, such as a preface:
-
-```markdown
-# Preface {-}
-```
 
 Write theorems, proofs and problems as fenced divs:
 
@@ -51,11 +34,7 @@ Project from the point $(-1,0)$ ...
 :::
 ```
 
-The available environments are `theorem`, `lemma`, `proposition`, `definition`, `example`, `problem`, `remark` and `proof`. All except `proof` share one counter, which restarts in each chapter: Lemma 1.4 is followed by Theorem 1.5.
-
-To cross-reference a chapter, give its heading an ID (`# Why Cubics Are Different {#cubics}`) and link to it with `Chapter [2](#cubics)`.
-
-To add an environment, change three files: the `envs` table in `filters/theorem-envs.lua`, a `\newtheorem` line in `metadata.yaml`, and a CSS rule in `style.css`.
+The available environments are `theorem`, `lemma`, `proposition`, `definition`, `example`, `problem`, `remark` and `proof`. Do not number chapters or sections yourself, because pandoc numbers them. To cross-reference a chapter, give its heading an ID (`# Why Cubics Are Different {#cubics}`) and link to it with `Chapter [2](#cubics)`.
 
 ## Setup: installing the build tools
 
@@ -117,19 +96,24 @@ fc-list | grep -i "Latin Modern Roman"     # the font must be found by name
 
 If `fc-list` finds nothing, XeLaTeX cannot find the font that `metadata.yaml` asks for (`mainfont: "Latin Modern Roman"`). Install `fonts-lmodern` (Debian/Ubuntu), or change `mainfont` to a font that is installed.
 
-Then build from this directory:
+Then build from the repository root:
 
 ```sh
 make web    # quick check: needs no LaTeX
 make pdf
 ```
 
-## Building on GitHub
+## Publishing
 
-`.github/workflows/build.yml` runs `make` on every push and pull request to `main`. The PDF, EPUB, LaTeX source and website are attached to the workflow run as the artifact `book`.
+This branch, `publish`, holds the book. The branch `main` holds the same pipeline with two sample chapters, as a starting point for other books.
 
-To publish the website, add a job that uploads `build/web` with `actions/upload-pages-artifact` and deploys it with `actions/deploy-pages`. Then open the repository settings, go to Pages, and set Source to "GitHub Actions".
+`.github/workflows/publish.yml` runs on every push to `publish`. It builds the book and then:
+
+- creates a GitHub Release, tagged `vYYYY.MM.DD.N`, with `book.pdf` and `book.epub`. The newest files are always at `releases/latest/download/book.pdf` and `releases/latest/download/book.epub`.
+- deploys `build/web/` to GitHub Pages.
+
+One-time setup: in the repository settings, set Pages > Source to "GitHub Actions", and under Environments > `github-pages` allow the branch `publish` to deploy.
 
 ## License
 
-MIT. See [LICENSE](LICENSE). The license covers the pipeline and the sample chapters. It does not cover books that you write with it.
+© 2026 Hilko. All rights reserved.

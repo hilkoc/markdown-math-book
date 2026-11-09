@@ -1,9 +1,9 @@
 ---
-title: "A Sample Math Book"
-subtitle: "A Template for Writing Mathematics in Markdown"
-author: "Your Name"
+title: "From Pythagoras to Riemann–Roch"
+subtitle: "Algebraic Curves Through Problems"
+author: "Hilko"
 lang: en-GB
-rights: "© 2026 Your Name. All rights reserved."
+rights: "© 2026 Hilko. All rights reserved."
 # LaTeX / PDF settings (ignored by HTML and EPUB)
 documentclass: book
 classoption:
@@ -21,6 +21,14 @@ mainfont: "Latin Modern Roman"
 header-includes:
   - \usepackage{amsthm}
   - \usepackage{microtype}
+  # Latin Modern has no Cyrillic. Print Ш (Tate–Shafarevich group) in CMU Serif
+  # (Debian/Ubuntu package fonts-cmu) if installed, else in DejaVu Serif.
+  - |
+    ```{=latex}
+    \usepackage{newunicodechar}
+    \IfFontExistsTF{CMU Serif}{\newfontfamily\cyrfont{CMU Serif}}{\newfontfamily\cyrfont{DejaVu Serif}}
+    \newunicodechar{Ш}{{\cyrfont Ш}}
+    ```
   - \theoremstyle{plain}
   - \newtheorem{theorem}{Theorem}[chapter]
   - \newtheorem{lemma}[theorem]{Lemma}

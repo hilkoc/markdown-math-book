@@ -1,0 +1,79 @@
+# Publishes the book on every push to the publish branch:
+#   - book.pdf and book.epub as assets of a new GitHub Release, tagged vYYYY.MM.DD.N
+#     (stable links: releases/latest/download/book.pdf and .../book.epub)
+#   - the website (build/web) to GitHub Pages
+# One-time setup: Settings -> Pages -> Source: "GitHub Actions", and allow the branch
+# "publish" under Settings -> Environments -> github-pages -> Deployment branches.
+# Optional: secret SITE_DISPATCH_TOKEN (fine-grained token, Contents: read and write on
+# hilkoc/hilkoc.github.io) makes the site refresh its "latest edition" line.
+name: Publish book
+on:
+  push:
+    branches: [publish]
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04   # apt ships pandoc 3.1.3 here; chunked HTML needs pandoc >= 3.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pandoc and TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends make unzip pandoc \
+            texlive-xetex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-luatex lmodern fonts-lmodern \
+            fonts-cmu fonts-dejavu
+      - run: make pdf epub web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: book
+          path: |
+            build/book.pdf
+            build/book.epub
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: book
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(date -u +%Y.%m.%d).${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" book.pdf book.epub \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Edition $tag" --generate-notes --latest
+      - name: Notify hilkoc.github.io
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+        if: env.GH_TOKEN != ''
+        run: gh api repos/hilkoc/hilkoc.github.io/dispatches -f event_type=book-updated
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

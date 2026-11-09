@@ -4,7 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A template for writing a mathematics book in Markdown. Pandoc builds it into a print PDF, LaTeX source, a chunked HTML website and an EPUB. The `chapters/` folder holds a short sample book (`00-introduction.md`, `01-pythagoras.md`, `02-cubics.md`) that demonstrates every formatting feature. People who start a book from this repository replace those chapters.
+A mathematics book, *From Pythagoras to Riemann–Roch: Algebraic Curves Through Problems* (author: Hilko), written in Markdown. Pandoc builds it into a print PDF, LaTeX source, a chunked HTML website and an EPUB.
+
+## Branches
+
+- `main`: the book-free template. Same pipeline, with three sample chapters (`00-introduction.md`, `01-pythagoras.md`, `02-cubics.md`). Pipeline changes belong on `main` first; then rebase `publish` onto `main`.
+- `publish` (this branch): `main` plus the book. Every push here publishes the book (see CI below).
+
+## The book chapters
+
+- `chapters/00-preface.md` and `chapters/19-afterword-roads-onward.md` are unnumbered (`{-}`); `01` to `18` are the numbered chapters.
+- Each chapter opens with an epigraph blockquote, then `##` sections.
+- Problems and theorems are still blockquotes with bold labels (`> **Problem 1.** ...`), not the fenced divs described below. They are not numbered by the filter.
+- The website page names (for example `the-circle-and-the-cubic.html`) come from the heading text, because most chapter headings have no ID. The site hilkoc.github.io links to these names, so changing a chapter title breaks its links there.
 
 ## Build commands
 
@@ -42,4 +54,6 @@ Requirements: pandoc >= 3.0 (for `chunkedhtml`), `unzip`, and XeLaTeX with the L
 
 ## CI
 
-`.github/workflows/build.yml` runs `make` on push and pull request to `main` (Ubuntu 24.04, apt pandoc and TeX Live) and uploads the outputs as the artifact `book`. It does not deploy anything.
+- `.github/workflows/build.yml` (from `main`) runs only on `main`.
+- `.github/workflows/publish.yml` runs on every push to `publish`: builds PDF, EPUB and web; creates a GitHub Release tagged `vYYYY.MM.DD.N` with `book.pdf` and `book.epub`; deploys `build/web` to GitHub Pages (https://hilkoc.github.io/markdown-math-book/); and, if the secret `SITE_DISPATCH_TOKEN` exists, sends a `book-updated` event to `hilkoc/hilkoc.github.io`.
+- `metadata.yaml` prints Ш in CMU Serif (`fonts-cmu`) if installed, else DejaVu Serif, because Latin Modern has no Cyrillic.
