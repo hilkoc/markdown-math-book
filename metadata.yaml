@@ -1,0 +1,34 @@
+---
+title: "A Sample Math Book"
+subtitle: "A Template for Writing Mathematics in Markdown"
+author: "Your Name"
+lang: en-GB
+rights: "© 2026 Your Name. All rights reserved."
+# LaTeX / PDF settings (ignored by HTML and EPUB)
+documentclass: book
+classoption:
+  - twoside
+  - openright
+fontsize: 10pt
+geometry:
+  - paperwidth=6in
+  - paperheight=9in
+  - inner=0.9in
+  - outer=0.65in
+  - top=0.8in
+  - bottom=0.8in
+mainfont: "Latin Modern Roman"
+header-includes:
+  - \usepackage{amsthm}
+  - \usepackage{microtype}
+  - \theoremstyle{plain}
+  - \newtheorem{theorem}{Theorem}[chapter]
+  - \newtheorem{lemma}[theorem]{Lemma}
+  - \newtheorem{proposition}[theorem]{Proposition}
+  - \theoremstyle{definition}
+  - \newtheorem{definition}[theorem]{Definition}
+  - \newtheorem{example}[theorem]{Example}
+  - \newtheorem{problem}[theorem]{Problem}
+  - \theoremstyle{remark}
+  - \newtheorem{remark}[theorem]{Remark}
+---

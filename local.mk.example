@@ -1,0 +1,5 @@
+# Personal settings for the Makefile. Copy this file to local.mk and edit it.
+# local.mk is ignored by git.
+
+# Folder that `make backup` copies the PDF, EPUB, LaTeX source and website to.
+BACKUPDIR := $(HOME)/path/to/backup/folder
