@@ -1,0 +1,34 @@
+# Builds the PDF, LaTeX source, EPUB and website on every push and pull request to main.
+# The outputs are attached to the workflow run as the artifact "book".
+# This workflow does not publish anything. To publish your own book, see the README.
+name: Build book
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04   # apt ships pandoc 3.1.3 here; chunked HTML needs pandoc >= 3.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pandoc and TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends make unzip pandoc \
+            texlive-xetex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended texlive-luatex lmodern fonts-lmodern
+      - run: make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: book
+          path: |
+            build/book.pdf
+            build/book.epub
+            build/book.tex
+            build/web/
